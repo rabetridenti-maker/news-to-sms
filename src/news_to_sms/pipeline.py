@@ -14,6 +14,7 @@ from news_to_sms.config import Settings
 from news_to_sms.dedup import StateStore, hash_key
 from news_to_sms.errors import ConfigError, FetchError, LlmError, SendError
 from news_to_sms.llm import LlmClient
+from news_to_sms.pokemon import pokemon_of_the_day
 from news_to_sms.sanitize import sanitize
 from news_to_sms.segmenter import segment
 from news_to_sms.sms.base import SmsProvider
@@ -163,16 +164,23 @@ async def build_digest(
     if rewriter is not None:
         try:
             material = _digest_material(news_text, trending)
-            digest = await rewriter.compose_digest(material)
-            return _cap_digest(digest, _DIGEST_MAX_CHARS)
+            news_digest = await rewriter.compose_digest(material)
         except LlmError as exc:
             log.warning("llm digest failed, falling back to plain: %s", exc)
-    return _cap_digest(_plain_digest(news_text, trending, now), _DIGEST_MAX_CHARS)
+            news_digest = _plain_digest(news_text, trending, now)
+    else:
+        news_digest = _plain_digest(news_text, trending, now)
+
+    news_part = _cap_digest(news_digest, _DIGEST_NEWS_MAX)
+    pokemon = pokemon_of_the_day(now.astimezone(timezone.utc).date())
+    return _cap_digest(f"{news_part}\n{pokemon}", _DIGEST_MAX_CHARS)
 
 
 # Keep the digest inside one SMS segment (~316 Chinese chars measured on 校讯通);
 # leave a margin so it arrives intact.
 _DIGEST_MAX_CHARS = 300
+# Reserve room so the guaranteed 【今日宝可梦】 line always fits.
+_DIGEST_NEWS_MAX = 250
 
 
 def _cap_digest(text: str, limit: int) -> str:
