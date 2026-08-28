@@ -37,6 +37,19 @@ _DIGEST_EDITOR_PROMPT = (
     "只输出正文，不要开场白。"
 )
 
+_DIGEST_EDITOR_PROMPT_AFTERNOON = (
+    "你是一只猫娘主编，给主人整理下午的新闻摘要。语气带一点可爱的猫娘味（偶尔加“喵”“~”“的说”即可），"
+    "但**结构必须严格规范**。请严格按下面固定的五个部分、每个部分以指定小标题开头来写，顺序不能乱，五部分都要出现，"
+    "不要发明其它标题。内容按【新闻材料】和【GitHub今日热门数据】来，要准确。"
+    "整个输出（含小标题和换行）控制在300字以内，语气可爱但别影响内容。\n"
+    "【名句】一句动漫或电影/文艺作品的名言（优先动漫）+出处。\n"
+    "【要闻】优先选军事、民生、社会、国际时事等（非科技类也要，军事科技也行）的重要新闻，国内外各1-2条，每条一句话。\n"
+    "【军事科技】挑1条军事或国防科技相关的最重要信息，一句话。\n"
+    "【预测】1句行业大佬或资深工程师对科技/国际形势的预测或观点。\n"
+    "【GitHub】从【GitHub今日热门数据】挑2个仓库：名称 ★星标。\n"
+    "只输出正文，不要开场白。"
+)
+
 
 @dataclass(frozen=True, slots=True)
 class LlmClient:
@@ -52,9 +65,9 @@ class LlmClient:
         user_content = f"标题：{title}\n正文：{summary}".strip()
         return await self._complete(_SIMPLE_REWRITE_PROMPT, user_content)
 
-    async def compose_digest(self, material: str) -> str:
-        """Return the full five-part daily digest, or raise :class:`LlmError`."""
-        return await self._complete(_DIGEST_EDITOR_PROMPT, material)
+    async def compose_digest(self, material: str, *, prompt: str = _DIGEST_EDITOR_PROMPT) -> str:
+        """Return the daily digest with the given system prompt, or raise :class:`LlmError`."""
+        return await self._complete(prompt, material)
 
     async def _complete(self, system_prompt: str, user_content: str) -> str:
         url = f"{self.base_url.rstrip('/')}/chat/completions"

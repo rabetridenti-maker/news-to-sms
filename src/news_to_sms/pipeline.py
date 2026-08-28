@@ -13,7 +13,7 @@ from news_to_sms.archive import MarkdownArchive
 from news_to_sms.config import Settings
 from news_to_sms.dedup import StateStore, hash_key
 from news_to_sms.errors import ConfigError, FetchError, LlmError, SendError
-from news_to_sms.llm import LlmClient
+from news_to_sms.llm import _DIGEST_EDITOR_PROMPT, _DIGEST_EDITOR_PROMPT_AFTERNOON, LlmClient
 from news_to_sms.sanitize import sanitize
 from news_to_sms.segmenter import segment
 from news_to_sms.sms.base import SmsProvider
@@ -163,10 +163,19 @@ async def build_digest(
     if rewriter is not None:
         try:
             material = _digest_material(news_text, trending)
-            return _cap_digest(await rewriter.compose_digest(material), _DIGEST_MAX_CHARS)
+            digest = await rewriter.compose_digest(material, prompt=_digest_prompt(now))
+            return _cap_digest(digest, _DIGEST_MAX_CHARS)
         except LlmError as exc:
             log.warning("llm digest failed, falling back to plain: %s", exc)
     return _cap_digest(_plain_digest(news_text, trending, now), _DIGEST_MAX_CHARS)
+
+
+def _digest_prompt(now: datetime) -> str:
+    """Afternoon runs (Beijing hour >= 12) use the military/livelihood prompt."""
+    beijing_hour = (now.hour + 8) % 24
+    if beijing_hour >= 12:
+        return _DIGEST_EDITOR_PROMPT_AFTERNOON
+    return _DIGEST_EDITOR_PROMPT
 
 
 # Keep the digest inside one SMS segment (~316 Chinese chars measured on 校讯通);

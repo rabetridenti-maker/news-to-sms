@@ -149,7 +149,7 @@ class FakeRewriter:
         self.calls.append((title, summary))
         return self.text
 
-    async def compose_digest(self, material: str) -> str:
+    async def compose_digest(self, material: str, **kwargs: object) -> str:
         self.digest_materials.append(material)
         return self.text
 
