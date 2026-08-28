@@ -9,6 +9,7 @@ import pytest
 import respx
 
 from news_to_sms.errors import FetchError, ParseError
+from news_to_sms.sources import build_sources
 from news_to_sms.sources.github_trending import fetch_github_trending
 from news_to_sms.sources.json_source import JsonSource
 from news_to_sms.sources.rss import RssSource
@@ -93,3 +94,13 @@ async def test_github_trending_returns_repo_lines():
         text = await fetch_github_trending(client)
     assert "- org/repo-a ★1234: an AI tool" in text
     assert "- org/repo-b ★99" in text
+
+
+async def test_build_sources_splits_comma_separated_urls():
+    from news_to_sms.config import Settings
+
+    settings = Settings(_env_file=None, news_url="http://a/feed.xml, http://b/feed.xml")
+    async with httpx.AsyncClient() as client:
+        sources = build_sources(settings, client)
+    assert len(sources) == 2
+    assert [s.url for s in sources] == ["http://a/feed.xml", "http://b/feed.xml"]

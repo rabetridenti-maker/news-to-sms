@@ -125,7 +125,7 @@ async def run(
 
 async def build_digest(
     *,
-    source: NewsSource,
+    sources: list[NewsSource],
     rewriter: LlmClient | None,
     client: httpx.AsyncClient,
     settings: Settings,
@@ -138,7 +138,12 @@ async def build_digest(
     With a rewriter the LLM composes a five-part digest (quote / news / AI-hardware /
     expert predictions / GitHub trending); without one it falls back to a plain list.
     """
-    items = await source.fetch(now=now)
+    items: list[NewsItem] = []
+    for source in sources:
+        try:
+            items.extend(await source.fetch(now=now))
+        except FetchError as exc:  # noqa: PERF203
+            log.warning("source %s unavailable: %s", source.url, exc)
     news_text = "\n\n".join(_build_body(item) for item in items)
 
     trending = ""

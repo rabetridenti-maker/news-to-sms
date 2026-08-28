@@ -22,7 +22,7 @@ from news_to_sms.errors import ConfigError, FetchError, NewsError, ParseError
 from news_to_sms.llm import LlmClient
 from news_to_sms.pipeline import build_digest, run
 from news_to_sms.sms import build_provider
-from news_to_sms.sources import build_source
+from news_to_sms.sources import build_sources
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -95,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
         limits = httpx.Limits(max_connections=5, max_keepalive_connections=2)
         timeout = httpx.Timeout(connect=10.0, read=30.0, write=10.0, pool=30.0)
         async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
-            source = build_source(settings, client)
+            sources = build_sources(settings, client)
             now = datetime.now(timezone.utc)
             rewriter = None
             if settings.ai_api_key:
@@ -107,7 +107,7 @@ def main(argv: list[str] | None = None) -> int:
                 )
             if args.digest_out:
                 return await build_digest(
-                    source=source,
+                    sources=sources,
                     rewriter=rewriter,
                     client=client,
                     settings=settings,
@@ -119,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
             archive = MarkdownArchive(Path(settings.archive_dir))
             return await run(
                 settings=settings,
-                source=source,
+                source=sources[0],
                 provider=provider,
                 state=state,
                 archive=archive,

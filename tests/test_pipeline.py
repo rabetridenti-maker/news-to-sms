@@ -184,7 +184,7 @@ async def test_build_digest_uses_ai_rewrite(tmp_path):
     rewriter = FakeRewriter("完整早报")
     async with httpx.AsyncClient() as client:
         text = await build_digest(
-            source=build_source(settings, client),
+            sources=[build_source(settings, client)],
             rewriter=rewriter,
             client=client,
             settings=settings,
