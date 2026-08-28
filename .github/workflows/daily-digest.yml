@@ -4,11 +4,11 @@ name: daily-digest
 # Shortcut fetches. Runs twice daily so there is fresh content in the morning and
 # again in the afternoon. Times are UTC:
 #   0 0 * * *  = 08:00 Beijing (morning)
-#   0 8 * * *  = 16:00 Beijing (afternoon)
+#   0 7 * * *  = 15:00 Beijing (afternoon)
 on:
   schedule:
     - cron: "0 0 * * *"
-    - cron: "0 8 * * *"
+    - cron: "0 7 * * *"
   workflow_dispatch:
 
 permissions:
