@@ -138,15 +138,17 @@ async def build_digest(
     With a rewriter the LLM composes a five-part digest (quote / news / AI-hardware /
     expert predictions / GitHub trending); without one it falls back to a plain list.
     """
-    items: list[NewsItem] = []
+    blocks: list[str] = []
     for source in sources:
         try:
             fetched = await source.fetch(now=now)
-            items.extend(fetched)
             log.info("digest source %s: %d items", source.url, len(fetched))
+            if fetched:
+                body = "\n".join(f"- {_build_body(item)}" for item in fetched)
+                blocks.append(f"【{_source_label(source.url)}】\n{body}")
         except FetchError as exc:  # noqa: PERF203
             log.warning("source %s unavailable: %s", source.url, exc)
-    news_text = "\n\n".join(_build_body(item) for item in items)
+    news_text = "\n\n".join(blocks)
 
     trending = ""
     try:
@@ -161,6 +163,22 @@ async def build_digest(
         except LlmError as exc:
             log.warning("llm digest failed, falling back to plain: %s", exc)
     return _plain_digest(news_text, trending, now)
+
+
+def _source_label(url: str) -> str:
+    """Short human label for a source URL so the AI can tell 国内 from 国际."""
+    lower = url.lower()
+    if "ithome" in lower:
+        return "国内·IT之家"
+    if "bbci" in lower or "bbc.co.uk" in lower:
+        return "国际·BBC"
+    if "techcrunch" in lower:
+        return "国际·TechCrunch"
+    if "ycombinator" in lower:
+        return "国际·HackerNews"
+    from urllib.parse import urlparse
+
+    return urlparse(url).netloc
 
 
 def _digest_material(news_text: str, trending: str) -> str:

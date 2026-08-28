@@ -35,7 +35,7 @@ jobs:
           AI_MODEL: glm-4-flash
           NEWS_URL: ${{ secrets.NEWS_URL }}
           NEWS_WINDOW_HOURS: "24"
-          NEWS_MAX_ITEMS: "10"
+          NEWS_MAX_ITEMS: "4"
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           mkdir -p public
