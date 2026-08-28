@@ -141,7 +141,9 @@ async def build_digest(
     items: list[NewsItem] = []
     for source in sources:
         try:
-            items.extend(await source.fetch(now=now))
+            fetched = await source.fetch(now=now)
+            items.extend(fetched)
+            log.info("digest source %s: %d items", source.url, len(fetched))
         except FetchError as exc:  # noqa: PERF203
             log.warning("source %s unavailable: %s", source.url, exc)
     news_text = "\n\n".join(_build_body(item) for item in items)
