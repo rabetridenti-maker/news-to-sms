@@ -106,16 +106,9 @@ Set `AI_API_KEY` to have the news rewritten by an OpenAI-compatible LLM before
 delivery.
 
 - **Send path** (`run`): each article is condensed into a ≤200-字 brief before splitting.
-- **Digest path** (`--digest-out`): the LLM composes a five-part daily digest from the
-  fetched news **plus real GitHub trending** (fetched via the GitHub search API):
-
-```
-1. 【一句·名句】   an anime/movie/art quote (anime first) with translation + source
-2. 【今日要闻】     regular news (military / tech / society), one line each
-3. 【AI 与硬件·详解】 AI / chip / hardware news in extra detail
-4. 【大佬预测】     expert / engineer outlooks synthesized from the AI & hardware news
-5. 【GitHub 今日热门】  today's trending repos with stars + one-line description
-```
+- **Digest path** (`--digest-out`): the LLM picks today's single most important news item
+  (domestic or international) and writes it as **one line ≤70 Chinese characters** — sized
+  so a single SMS reaches 校讯通 intact instead of being truncated.
 
 - Default model is the **free 智谱 GLM-4-Flash**; point `AI_MODEL`/`AI_BASE_URL` at any
   OpenAI-compatible provider (DeepSeek, 硅基流动, …).
