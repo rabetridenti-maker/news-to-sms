@@ -170,9 +170,9 @@ async def build_digest(
     return _cap_digest(_plain_digest(news_text, trending, now), _DIGEST_MAX_CHARS)
 
 
-# Keep the digest inside one SMS segment (~70 Chinese chars) so 校讯通 (SMS)
-# shows the whole message instead of truncating or dropping it.
-_DIGEST_MAX_CHARS = 65
+# Keep the digest inside one SMS segment (~316 Chinese chars measured on 校讯通);
+# leave a margin so it arrives intact.
+_DIGEST_MAX_CHARS = 300
 
 
 def _cap_digest(text: str, limit: int) -> str:
