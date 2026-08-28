@@ -1,10 +1,14 @@
 name: daily-digest
 
-# Publishes today's AI-rewritten news digest to GitHub Pages, which the iPhone
-# Shortcut fetches every morning. Runs daily at 00:00 UTC (08:00 Beijing).
+# Publishes the AI-rewritten news digest to GitHub Pages, which the iPhone
+# Shortcut fetches. Runs twice daily so there is fresh content in the morning and
+# again in the afternoon. Times are UTC:
+#   0 0 * * *  = 08:00 Beijing (morning)
+#   0 8 * * *  = 16:00 Beijing (afternoon)
 on:
   schedule:
     - cron: "0 0 * * *"
+    - cron: "0 8 * * *"
   workflow_dispatch:
 
 permissions:
