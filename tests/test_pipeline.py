@@ -193,3 +193,24 @@ async def test_build_digest_uses_ai_rewrite(tmp_path):
         )
     assert text == "完整早报"
     assert "Item A" in rewriter.digest_materials[0]
+
+
+def test_cap_digest_limits_long_text_to_max():
+    from news_to_sms.pipeline import _cap_digest
+
+    out = _cap_digest("字" * 500, 200)
+    assert len(out) == 200
+
+
+def test_cap_digest_breaks_at_newline_when_possible():
+    from news_to_sms.pipeline import _cap_digest
+
+    out = _cap_digest("第一行内容\n" * 60, 200)
+    assert len(out) <= 200
+    assert out.endswith("内容")
+
+
+def test_cap_digest_keeps_short_text_unchanged():
+    from news_to_sms.pipeline import _cap_digest
+
+    assert _cap_digest("很短", 200) == "很短"
