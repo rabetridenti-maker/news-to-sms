@@ -38,6 +38,7 @@ jobs:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_MODEL: glm-4-flash
           NEWS_URL: ${{ secrets.NEWS_URL }}
+          NEWS_URL_AFTERNOON: ${{ secrets.NEWS_URL_AFTERNOON }}
           NEWS_WINDOW_HOURS: "24"
           NEWS_MAX_ITEMS: "4"
           GITHUB_TOKEN: ${{ github.token }}

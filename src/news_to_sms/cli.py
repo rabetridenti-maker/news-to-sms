@@ -73,6 +73,14 @@ def _apply_overrides(settings: Settings, args: argparse.Namespace) -> Settings:
     return settings.model_copy(update=updates) if updates else settings
 
 
+def _select_news_url(settings: Settings, now: datetime) -> str | None:
+    """Afternoon runs (Beijing hour >= 12) use the separate non-tech sources."""
+    beijing_hour = (now.hour + 8) % 24
+    if beijing_hour >= 12 and settings.news_url_afternoon:
+        return settings.news_url_afternoon
+    return settings.news_url
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the pipeline; returns a process exit code."""
     args = _build_parser().parse_args(argv)
@@ -95,8 +103,8 @@ def main(argv: list[str] | None = None) -> int:
         limits = httpx.Limits(max_connections=5, max_keepalive_connections=2)
         timeout = httpx.Timeout(connect=10.0, read=30.0, write=10.0, pool=30.0)
         async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
-            sources = build_sources(settings, client)
             now = datetime.now(timezone.utc)
+            sources = build_sources(settings, client, url=_select_news_url(settings, now))
             rewriter = None
             if settings.ai_api_key:
                 rewriter = LlmClient(

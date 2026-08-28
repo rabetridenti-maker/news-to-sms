@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # ---- news source ---------------------------------------------------------
     news_source_type: Literal["rss", "json"] = "rss"
     news_url: str = "https://example.com/feed.xml"
+    # Separate non-tech sources used for the afternoon digest (else reuse news_url).
+    news_url_afternoon: str | None = None
     news_window_hours: int = Field(default=24, ge=0)
     news_max_items: int = Field(default=10, ge=1)
 

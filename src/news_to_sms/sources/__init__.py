@@ -21,12 +21,17 @@ def _split_urls(url: str) -> list[str]:
     return [part.strip() for part in url.split(",") if part.strip()]
 
 
-def build_sources(settings: Settings, client: httpx.AsyncClient) -> list[NewsSource]:
-    """Build one source per comma-separated URL in ``settings.news_url``."""
-    urls = _split_urls(settings.news_url)
+def build_sources(
+    settings: Settings,
+    client: httpx.AsyncClient,
+    *,
+    url: str | None = None,
+) -> list[NewsSource]:
+    """Build one source per comma-separated URL (default ``settings.news_url``)."""
+    urls = _split_urls(url if url else settings.news_url)
     if not urls:
         raise ConfigError("news_url", "at least one news URL is required")
-    return [_build_one(settings, client, url) for url in urls]
+    return [_build_one(settings, client, item) for item in urls]
 
 
 def build_source(settings: Settings, client: httpx.AsyncClient) -> NewsSource:
