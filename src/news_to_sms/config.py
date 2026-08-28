@@ -59,6 +59,11 @@ class Settings(BaseSettings):
     # ---- GitHub trending (optional, for the digest) ----------------------------
     github_token: str | None = None
 
+    # ---- test override ----------------------------------------------------------
+    # If set, the digest is this exact text (skips AI) — useful for testing the
+    # receiving end's length limit. Clear it (set empty) to restore the AI digest.
+    digest_override: str | None = None
+
     # ---- storage ----------------------------------------------------------------
     state_path: str = "state/state.json"
     archive_dir: str = "archive"

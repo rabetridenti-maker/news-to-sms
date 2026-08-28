@@ -37,6 +37,7 @@ jobs:
           NEWS_WINDOW_HOURS: "24"
           NEWS_MAX_ITEMS: "4"
           GITHUB_TOKEN: ${{ github.token }}
+          DIGEST_OVERRIDE: ${{ secrets.DIGEST_OVERRIDE }}
         run: |
           mkdir -p public
           python -m news_to_sms --digest-out public/digest.txt

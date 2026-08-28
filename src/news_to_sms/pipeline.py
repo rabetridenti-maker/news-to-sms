@@ -135,9 +135,13 @@ async def build_digest(
     """Return today's digest as one plain-text block (no sending).
 
     Used by the serverless/GitHub Pages path: the Shortcut fetches this text.
-    With a rewriter the LLM composes a five-part digest (quote / news / AI-hardware /
-    expert predictions / GitHub trending); without one it falls back to a plain list.
+    With a rewriter the LLM composes a single top-news line; without one it falls
+    back to a plain list. If ``settings.digest_override`` is set it is returned
+    verbatim (testing the receiving end's length limit).
     """
+    if settings.digest_override:
+        return settings.digest_override.strip()
+
     blocks: list[str] = []
     for source in sources:
         try:
