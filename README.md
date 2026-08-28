@@ -72,7 +72,7 @@ ARCHIVE_DIR=archive
 | `SMS_RECIPIENTS` | Comma-separated recipient phone numbers |
 | `SMS_MAX_LENGTH` | Per-message character cap (default 200) |
 | `NEWS_SOURCE_TYPE` | `rss` (RSS/Atom) or `json` (arbitrary endpoint) |
-| `NEWS_URL` | The news source URL |
+| `NEWS_URL` | One or more comma-separated news URLs (same type). The live digest mixes 国内 (IT之家) + 国际 (BBC / TechCrunch / Hacker News). |
 | `NEWS_WINDOW_HOURS` | Keep articles published within this many hours (0 = today) |
 | `NEWS_MAX_ITEMS` | Hard cap on items processed per run |
 | `AI_API_KEY` | Optional: enable AI-rewriting each article with an OpenAI-compatible LLM |
