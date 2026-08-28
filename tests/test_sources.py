@@ -9,6 +9,7 @@ import pytest
 import respx
 
 from news_to_sms.errors import FetchError, ParseError
+from news_to_sms.sources.github_trending import fetch_github_trending
 from news_to_sms.sources.json_source import JsonSource
 from news_to_sms.sources.rss import RssSource
 
@@ -73,3 +74,22 @@ async def test_json_raises_parse_error_on_unrecognised_shape():
         source = JsonSource(client, url="http://api", window_hours=24, max_items=5)
         with pytest.raises(ParseError):
             await source.fetch(now=NOW)
+
+
+@respx.mock
+async def test_github_trending_returns_repo_lines():
+    respx.get("https://api.github.com/search/repositories").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "items": [
+                    {"full_name": "org/repo-a", "stargazers_count": 1234, "description": "an AI tool"},
+                    {"full_name": "org/repo-b", "stargazers_count": 99, "description": None},
+                ]
+            },
+        )
+    )
+    async with httpx.AsyncClient() as client:
+        text = await fetch_github_trending(client)
+    assert "- org/repo-a ★1234: an AI tool" in text
+    assert "- org/repo-b ★99" in text

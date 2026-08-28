@@ -106,7 +106,14 @@ def main(argv: list[str] | None = None) -> int:
                     base_url=settings.ai_base_url,
                 )
             if args.digest_out:
-                return await build_digest(source=source, rewriter=rewriter, now=now, log=log)
+                return await build_digest(
+                    source=source,
+                    rewriter=rewriter,
+                    client=client,
+                    settings=settings,
+                    now=now,
+                    log=log,
+                )
             provider = build_provider(settings, client)
             state = StateStore(Path(settings.state_path))
             archive = MarkdownArchive(Path(settings.archive_dir))

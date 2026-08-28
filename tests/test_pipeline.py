@@ -143,9 +143,14 @@ class FakeRewriter:
     def __init__(self, text: str) -> None:
         self.text = text
         self.calls: list[tuple[str, str]] = []
+        self.digest_materials: list[str] = []
 
     async def rewrite(self, title: str, summary: str) -> str:
         self.calls.append((title, summary))
+        return self.text
+
+    async def compose_digest(self, material: str) -> str:
+        self.digest_materials.append(material)
         return self.text
 
 
@@ -174,14 +179,17 @@ async def test_pipeline_uses_ai_rewrite(tmp_path):
 @respx.mock
 async def test_build_digest_uses_ai_rewrite(tmp_path):
     respx.get("http://feed").mock(return_value=httpx.Response(200, content=RSS_BODY))
+    respx.get("https://api.github.com/search/repositories").mock(return_value=httpx.Response(200, json={"items": []}))
     settings = _settings(tmp_path)
-    rewriter = FakeRewriter("AI简报")
+    rewriter = FakeRewriter("完整早报")
     async with httpx.AsyncClient() as client:
         text = await build_digest(
             source=build_source(settings, client),
             rewriter=rewriter,
+            client=client,
+            settings=settings,
             now=NOW,
             log=logging.getLogger("test"),
         )
-    assert "【今日新闻】" in text
-    assert "AI简报" in text
+    assert text == "完整早报"
+    assert "Item A" in rewriter.digest_materials[0]

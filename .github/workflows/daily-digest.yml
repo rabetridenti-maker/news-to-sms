@@ -36,6 +36,7 @@ jobs:
           NEWS_URL: ${{ secrets.NEWS_URL }}
           NEWS_WINDOW_HOURS: "24"
           NEWS_MAX_ITEMS: "10"
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           mkdir -p public
           python -m news_to_sms --digest-out public/digest.txt

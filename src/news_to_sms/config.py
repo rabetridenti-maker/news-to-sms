@@ -56,6 +56,9 @@ class Settings(BaseSettings):
     ai_model: str = "glm-4-flash"
     ai_base_url: str = "https://open.bigmodel.cn/api/paas/v4"
 
+    # ---- GitHub trending (optional, for the digest) ----------------------------
+    github_token: str | None = None
+
     # ---- storage ----------------------------------------------------------------
     state_path: str = "state/state.json"
     archive_dir: str = "archive"
