@@ -1,0 +1,47 @@
+name: daily-news-to-sms
+
+# Manual-only: the daily digest now goes to GitHub Pages (see daily-digest.yml)
+# and is delivered via the iPhone Shortcut. Enable the SMS schedule below only
+# once you have a real SMS channel (webhook/aliyun/smsbao) configured.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: pip install -e .
+
+      - name: Run
+        env:
+          SMS_PROVIDER: ${{ secrets.SMS_PROVIDER }}
+          SMS_SENDER: ${{ secrets.SMS_SENDER }}
+          SMS_RECIPIENTS: ${{ secrets.SMS_RECIPIENTS }}
+          SMS_WEBHOOK_URL: ${{ secrets.SMS_WEBHOOK_URL }}
+          SMS_WEBHOOK_TOKEN: ${{ secrets.SMS_WEBHOOK_TOKEN }}
+          NEWS_SOURCE_TYPE: ${{ secrets.NEWS_SOURCE_TYPE }}
+          NEWS_URL: ${{ secrets.NEWS_URL }}
+        run: python -m news_to_sms
+
+      # Persist dedup state + markdown archives across scheduled runs.
+      - name: Commit state & archive
+        run: |
+          git config user.name "news-to-sms bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add state archive || true
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+          else
+            git commit -m "news-to-sms: update state/archive"
+            git push
+          fi

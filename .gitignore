@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+
+# Local env + secrets (never commit)
+.env
+
+# Runtime state / archives (generated)
+state/
+out/
+archive/
+public/
+digest.txt
+
+# OS
+.DS_Store
+Thumbs.db

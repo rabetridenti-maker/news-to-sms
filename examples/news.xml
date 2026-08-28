@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>示例新闻</title>
+  <link>https://example.com</link>
+  <description>本地测试用样例 RSS。</description>
+  <item>
+    <title>今日要闻：城市开通首条低空航线</title>
+    <link>https://example.com/news/1</link>
+    <guid>example-1</guid>
+    <description><![CDATA[<p>今天上午，<strong>首条低空航线</strong>正式开通，预计将缩短通勤时间。</p>]]></description>
+    <pubDate>Wed, 01 Jan 2025 08:00:00 GMT</pubDate>
+  </item>
+  <item>
+    <title>科技公司发布新一代AI助手，支持离线推理</title>
+    <link>https://example.com/news/2</link>
+    <guid>example-2</guid>
+    <description>该产品主打隐私与效率，用户可在无网络环境下完成日常问答。</description>
+    <pubDate>Wed, 01 Jan 2025 07:30:00 GMT</pubDate>
+  </item>
+</channel>
+</rss>

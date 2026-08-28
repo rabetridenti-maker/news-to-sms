@@ -1,0 +1,13 @@
+{
+  "include": ["src"],
+  "exclude": ["**/.venv/**", "tests"],
+  "typeCheckingMode": "standard",
+  "pythonVersion": "3.10",
+  "useLibraryCodeForTypes": true,
+  "executionEnvironments": [
+    {
+      "root": "src",
+      "pythonVersion": "3.10"
+    }
+  ]
+}

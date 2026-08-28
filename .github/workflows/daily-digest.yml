@@ -1,0 +1,56 @@
+name: daily-digest
+
+# Publishes today's AI-rewritten news digest to GitHub Pages, which the iPhone
+# Shortcut fetches every morning. Runs daily at 00:00 UTC (08:00 Beijing).
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: pip install -e .
+
+      - name: Generate digest
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_MODEL: glm-4-flash
+          NEWS_URL: ${{ secrets.NEWS_URL }}
+          NEWS_WINDOW_HOURS: "24"
+          NEWS_MAX_ITEMS: "10"
+        run: |
+          mkdir -p public
+          python -m news_to_sms --digest-out public/digest.txt
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
