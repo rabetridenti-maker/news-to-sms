@@ -159,10 +159,25 @@ async def build_digest(
     if rewriter is not None:
         try:
             material = _digest_material(news_text, trending)
-            return await rewriter.compose_digest(material)
+            digest = await rewriter.compose_digest(material)
+            return _cap_digest(digest, _DIGEST_MAX_CHARS)
         except LlmError as exc:
             log.warning("llm digest failed, falling back to plain: %s", exc)
-    return _plain_digest(news_text, trending, now)
+    return _cap_digest(_plain_digest(news_text, trending, now), _DIGEST_MAX_CHARS)
+
+
+_DIGEST_MAX_CHARS = 200
+
+
+def _cap_digest(text: str, limit: int) -> str:
+    """Guarantee the digest is at most ``limit`` characters, breaking at a line end."""
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    newline = cut.rfind("\n")
+    if newline > limit // 2:
+        return cut[:newline].rstrip()
+    return cut.rstrip()
 
 
 def _source_label(url: str) -> str:
